@@ -164,23 +164,47 @@ int main(int argc, char **argv) {
 
     while (!quit) {
         SDL_WaitEvent(&event);
+        int *x = &floating_tetromino.x;
+        int *y = &floating_tetromino.y;
+        int type = field[*x][*y];
         switch (event.type) {
+        case SDL_KEYDOWN: {
+            switch (event.key.keysym.sym) {
+            case SDLK_LEFT: {
+                for (int i = 0; i < 4; ++i) {
+                    field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = CellStateEmpty;
+                }
+                --floating_tetromino.x;
+                for (int i = 0; i < 4; ++i) {
+                    field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = type;
+                }
+            } break;
+            case SDLK_RIGHT: {
+                for (int i = 0; i < 4; ++i) {
+                    field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = CellStateEmpty;
+                }
+                ++floating_tetromino.x;
+                for (int i = 0; i < 4; ++i) {
+                    field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = type;
+                }
+            } break;
+            default:
+                break;
+            }
+        } break;
         case SDL_USEREVENT: {
             if (event.user.code == 1) {
-                int x = floating_tetromino.x;
-                int y = floating_tetromino.y;
-                int type = field[floating_tetromino.x][floating_tetromino.y];
                 bool move = true;
                 bool ok = true;
                 for (int i = 0; i < 4; ++i) {
-                    if (y + tetromino[type][i].y + 1 >= FIELD_HEIGHT) {
+                    if (*y + tetromino[type][i].y + 1 >= FIELD_HEIGHT) {
                         ok = false;
                         break;
                     }
                     bool check = true;
                     for (int j = 0; j < 4; ++j) {
-                        if (x + tetromino[type][i].x == x + tetromino[type][j].x &&
-                            y + tetromino[type][i].y + 1 == y + tetromino[type][j].y) {
+                        if (*x + tetromino[type][i].x == *x + tetromino[type][j].x &&
+                            *y + tetromino[type][i].y + 1 == *y + tetromino[type][j].y) {
                             check = false;
                             break;
                         }
@@ -188,7 +212,7 @@ int main(int argc, char **argv) {
                     if (!check) {
                         continue;
                     }
-                    if (field[x + tetromino[type][i].x][y + tetromino[type][i].y + 1] != CellStateEmpty) {
+                    if (field[*x + tetromino[type][i].x][*y + tetromino[type][i].y + 1] != CellStateEmpty) {
                         ok = false;
                         break;
                     }
@@ -198,11 +222,11 @@ int main(int argc, char **argv) {
                 }
                 if (move) {
                     for (int i = 0; i < 4; ++i) {
-                        field[x + tetromino[type][i].x][y + tetromino[type][i].y] = CellStateEmpty;
+                        field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = CellStateEmpty;
                     }
-                    ++floating_tetromino.y, ++y;
+                    ++floating_tetromino.y;
                     for (int i = 0; i < 4; ++i) {
-                        field[x + tetromino[type][i].x][y + tetromino[type][i].y] = type;
+                        field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = type;
                     }
                 } else {
                     floating_tetromino = spawn_tetromino(field);
