@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
         fprintf(stderr, "Could not create SDL surface: %s", SDL_GetError());
         return 1;
     }
-    SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 10, 10, 10));
+    SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 140, 140, 140));
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
     if (texture == NULL) {
@@ -38,11 +38,48 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    SDL_Surface *cell_surface = SDL_CreateRGBSurface(0, 32, 32, 32, 0, 0, 0, 0);
+    if (cell_surface == NULL) {
+        fprintf(stderr, "Could not create SDL surface: %s", SDL_GetError());
+        return 1;
+    }
+    
+    SDL_FillRect(cell_surface, NULL, SDL_MapRGB(cell_surface->format, 140, 140, 140));
+    SDL_Rect border;
+    border.x = border.y = 0;
+    border.w = 32;
+    border.h = 2;
+    SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 255, 255, 255));
+    border.y = 32 - 2;
+    SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 255, 255, 255));
+    border.x = border.y = 0;
+    border.w = 2;
+    border.h = 32;
+    SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 255, 255, 255));
+    border.x = 32 - 2;
+    SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 255, 255, 255));
+
+    SDL_Texture *cell_texture = SDL_CreateTextureFromSurface(renderer, cell_surface);
+    if (cell_texture == NULL) {
+        fprintf(stderr, "Could not create texture from surface: %s\n", SDL_GetError());
+        exit(1);
+    }
+    
     SDL_Rect rect;
     rect.x = rect.y = 0;
     rect.w = width / 3 * 2;
     rect.h = height;
+
     SDL_RenderCopy(renderer, texture, NULL, &rect);
+    SDL_Rect cell;
+    cell.w = cell.h = 16;
+    for (int i = 0; i < 20; ++i) {
+        for (int j = 0; j < 25; ++j) {
+            cell.x = i * 16 + 32;
+            cell.y = j * 16 + 16;
+            SDL_RenderCopy(renderer, cell_texture, NULL, &cell);
+        }
+    }
     SDL_RenderPresent(renderer);
 
     int quit = 0;
@@ -59,6 +96,8 @@ int main(int argc, char **argv) {
 
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
+    SDL_FreeSurface(cell_surface);
+    SDL_DestroyTexture(cell_texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
