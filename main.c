@@ -55,7 +55,7 @@ typedef struct {
     int x, y;
 } Point;
 
-Point tetromino[12][4] = {
+Point tetromino[24][4] = {
     {
         {.x = 0, .y = 0},
         {.x = 0, .y = 0},
@@ -161,6 +161,24 @@ Uint32 timer_callback(Uint32 interval, void *param) {
 }
 
 int main(int argc, char **argv) {
+    tetromino[15][0].x = 0;
+    tetromino[15][0].y = 0;
+    tetromino[15][1].x = 1;
+    tetromino[15][1].y = 0;
+    tetromino[15][2].x = 2;
+    tetromino[15][2].y = 0;
+    tetromino[15][3].x = 2;
+    tetromino[15][3].y = 1;
+
+    tetromino[21][0].x = 0;
+    tetromino[21][0].y = 1;
+    tetromino[21][1].x = 1;
+    tetromino[21][1].y = 1;
+    tetromino[21][2].x = 2;
+    tetromino[21][2].y = 0;
+    tetromino[21][3].x = 2;
+    tetromino[21][3].y = 1;
+
     srand((unsigned)time(0));
     trace_assert(SDL_Init(SDL_INIT_VIDEO) == 0);
 
@@ -269,12 +287,13 @@ int main(int argc, char **argv) {
                         tetromino[type][i].y = t;
                     }
                     ++tetromino_state;
-                } else if (tetromino_state == 1) {
-                    type += 6;
-                    ++tetromino_state;
                 } else {
-                    type -= 6;
-                    tetromino_state = 0;
+                    type += 6;
+                    if (type % 6 == 3)
+                        type %= 24;
+                    else
+                        type %= 12;
+                    ++tetromino_state;
                 }
                 for (int i = 0; i < 4; ++i) {
                     if (*x + tetromino[type][i].x < 0 ||
@@ -297,11 +316,16 @@ int main(int argc, char **argv) {
                             tetromino[type][i].y = t;
                         }
                         --tetromino_state;
-                    } else if (tetromino_state == 0) {
-                        type += 6;
-                        tetromino_state = 3;
                     } else {
                         type -= 6;
+                        if (type % 6 == 3)
+                            type += 24;
+                        else
+                            type += 12;
+                        if (type % 6 == 3)
+                            type %= 24;
+                        else
+                            type %= 12;
                         --tetromino_state;
                     }
                 }
@@ -320,7 +344,7 @@ int main(int argc, char **argv) {
                         if (*y + tetromino[type][i].y >= FIELD_HEIGHT) {
                             move = false;
                             break;
-                        }
+                           }
                         field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = CellStateEmpty;
                     }
                     ++floating_tetromino.y;
