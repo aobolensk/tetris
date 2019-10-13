@@ -1,0 +1,37 @@
+matrix:
+  include:
+    - os: linux
+      language: c
+      dist: bionic
+      name: Linux-g++
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - sourceline: 'ppa:ubuntu-toolchain-r/test'
+          packages:
+            - g++-9
+            - libsdl2-dev
+      install:
+        - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 100 --slave /usr/bin/g++ g++ /usr/bin/g++-9
+      script:
+        - mkdir build
+        - cd build
+        - cmake ..
+        - cmake --build . -- -j
+    - os: linux
+      language: c
+      dist: bionic
+      name: Linux-clang
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - sourceline: 'ppa:ubuntu-toolchain-r/test'
+          packages:
+            - libsdl2-dev
+      script:
+        - mkdir build
+        - cd build
+        - cmake ..
+        - cmake --build . -- -j
