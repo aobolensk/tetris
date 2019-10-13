@@ -208,6 +208,27 @@ int main(int argc, char **argv) {
                     field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = type;
                 }
             } break;
+            case SDLK_DOWN: {
+                bool move = true;
+                while (move) {
+                    for (int i = 0; i < 4; ++i) {
+                        field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = CellStateEmpty;
+                    }
+                    ++floating_tetromino.y;
+                    for (int i = 0; i < 4; ++i) {
+                        if (field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] != CellStateEmpty) {
+                            move = false;
+                            break;
+                        }
+                    }
+                    if (!move) {
+                        --floating_tetromino.y;
+                    }
+                    for (int i = 0; i < 4; ++i) {
+                        field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = type;
+                    }
+                }
+            } break;
             default:
                 break;
             }
