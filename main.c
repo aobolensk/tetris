@@ -175,6 +175,16 @@ int main(int argc, char **argv) {
                     field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = CellStateEmpty;
                 }
                 --floating_tetromino.x;
+                bool move = true;
+                for (int i = 0; i < 4; ++i) {
+                    if (field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] != CellStateEmpty) {
+                        move = false;
+                        break;
+                    }
+                }
+                if (!move) {
+                    ++floating_tetromino.x;
+                }
                 for (int i = 0; i < 4; ++i) {
                     field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = type;
                 }
@@ -184,6 +194,16 @@ int main(int argc, char **argv) {
                     field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = CellStateEmpty;
                 }
                 ++floating_tetromino.x;
+                bool move = true;
+                for (int i = 0; i < 4; ++i) {
+                    if (field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] != CellStateEmpty) {
+                        move = false;
+                        break;
+                    }
+                }
+                if (!move) {
+                    --floating_tetromino.x;
+                }
                 for (int i = 0; i < 4; ++i) {
                     field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = type;
                 }
