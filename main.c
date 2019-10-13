@@ -24,7 +24,7 @@ enum CellState {
     CellStateRed,
     CellStateGreen,
     CellStateBlue,
-    CellStateYellow,
+    CellStateLightBlue,
     CellStatePurple
 };
 
@@ -36,15 +36,15 @@ SDL_Texture *get_cell(SDL_Renderer *renderer, int r, int g, int b) {
     border.x = border.y = 0;
     border.w = CELL_SIZE;
     border.h = BORDER_SIZE;
-    SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 255, 255, 255));
+    SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 180, 180, 180));
     border.y = CELL_SIZE - BORDER_SIZE;
-    SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 255, 255, 255));
+    SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 180, 180, 180));
     border.x = border.y = 0;
     border.w = BORDER_SIZE;
     border.h = CELL_SIZE;
-    SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 255, 255, 255));
+    SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 180, 180, 180));
     border.x = CELL_SIZE - BORDER_SIZE;
-    SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 255, 255, 255));
+    SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 180, 180, 180));
     SDL_Texture *cell_texture = NULL;
     trace_assert(cell_texture = SDL_CreateTextureFromSurface(renderer, cell_surface));
     SDL_FreeSurface(cell_surface);
@@ -179,6 +179,8 @@ int main(int argc, char **argv) {
     tetromino[21][3].x = 2;
     tetromino[21][3].y = 1;
 
+    int score = 0;
+
     srand((unsigned)time(0));
     trace_assert(SDL_Init(SDL_INIT_VIDEO) == 0);
 
@@ -204,14 +206,15 @@ int main(int argc, char **argv) {
     }
 
     Point floating_tetromino = spawn_tetromino(field);
+    bool just_spawned = true;
     int tetromino_state = 0;
 
     SDL_Texture *empty_cell = get_cell(renderer, 140, 140, 140);
-    SDL_Texture *red_cell = get_cell(renderer, 255, 0, 0);
-    SDL_Texture *green_cell = get_cell(renderer, 0, 255, 0);
-    SDL_Texture *blue_cell = get_cell(renderer, 0, 0, 255);
-    SDL_Texture *yellow_cell = get_cell(renderer, 0, 255, 255);
-    SDL_Texture *purple_cell = get_cell(renderer, 255, 0, 255);
+    SDL_Texture *red_cell = get_cell(renderer, 230, 0, 0);
+    SDL_Texture *green_cell = get_cell(renderer, 50, 230, 50);
+    SDL_Texture *blue_cell = get_cell(renderer, 0, 0, 230);
+    SDL_Texture *light_blue_cell = get_cell(renderer, 0, 230, 230);
+    SDL_Texture *purple_cell = get_cell(renderer, 210, 30, 210);
     SDL_Rect cell_rect;
     cell_rect.w = cell_rect.h = CELL_SIZE;
 
@@ -219,6 +222,7 @@ int main(int argc, char **argv) {
     int quit = 0;
     SDL_Event event;
 
+game_start:
     while (!quit) {
         SDL_WaitEvent(&event);
         int *x = &floating_tetromino.x;
@@ -279,7 +283,6 @@ int main(int argc, char **argv) {
                 for (int i = 0; i < 4; ++i) {
                     field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = CellStateEmpty;
                 }
-                printf("state: %d, type: %d\n", tetromino_state, type);
                 if (tetromino_state % 2 == 0) {
                     for (int i = 0; i < 4; ++i) {
                         int t = tetromino[type][i].x;
@@ -328,10 +331,6 @@ int main(int argc, char **argv) {
                             type %= 12;
                         --tetromino_state;
                     }
-                }
-                printf("state: %d, type: %d - end\n", tetromino_state, type);
-                for (int i = 0; i < 4; ++i) {
-                    printf("%d %d\n", tetromino[type][i].x, tetromino[type][i].y);
                 }
                 for (int i = 0; i < 4; ++i) {
                     field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = type;
@@ -387,6 +386,15 @@ int main(int argc, char **argv) {
                         continue;
                     }
                     if (field[*x + tetromino[type][i].x][*y + tetromino[type][i].y + 1] != CellStateEmpty) {
+                        if (*y + tetromino[type][i].y < 3 && just_spawned) {
+                            printf("Game over!\nYour score: %d\n", score);
+                            for (int i = 0; i < FIELD_WIDTH; ++i) {
+                                for (int j = 0; j < FIELD_HEIGHT; ++j) {
+                                    field[i][j] = 0;
+                                }
+                            }
+                            goto game_start;
+                        }
                         ok = false;
                         break;
                     }
@@ -394,7 +402,6 @@ int main(int argc, char **argv) {
                 if (!ok) {
                     move = false;
                 }
-                printf("type: %d\n", type);
                 if (move) {
                     for (int i = 0; i < 4; ++i) {
                         field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = CellStateEmpty;
@@ -403,9 +410,10 @@ int main(int argc, char **argv) {
                     for (int i = 0; i < 4; ++i) {
                         field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = type;
                     }
+                    just_spawned = false;
                 } else {
-                    puts("spawn");
                     floating_tetromino = spawn_tetromino(field);
+                    just_spawned = true;
                     tetromino_state = 0;
                 }
             }
@@ -415,6 +423,7 @@ int main(int argc, char **argv) {
         } break;
         }
         bool changed = false;
+        int dels_in_a_row = 0;
         do {
             for (int j = 0; j < FIELD_HEIGHT; ++j) {
                 bool del_row = true;
@@ -435,10 +444,31 @@ int main(int argc, char **argv) {
                     changed = false;
                 }
                 if (changed) {
+                    ++dels_in_a_row;
                     break;
                 }
             }
         } while (changed);
+        switch (dels_in_a_row) {
+        case 0:
+            break;
+        case 1:
+            score += 150;
+            printf("Score: %d\n", score);
+            break;
+        case 2:
+            score += 350;
+            printf("Score: %d\n", score);
+            break;
+        case 3:
+            score += 750;
+            printf("Score: %d\n", score);
+            break;
+        default:
+            score += 1550;
+            printf("Score: %d\n", score);
+            break;
+        }
         for (int i = 0; i < FIELD_WIDTH; ++i) {
             for (int j = 0; j < FIELD_HEIGHT; ++j) {
                 cell_rect.x = i * CELL_SIZE + FIELD_OFFSET_X;
@@ -456,8 +486,8 @@ int main(int argc, char **argv) {
                 case CellStateBlue:
                     SDL_RenderCopy(renderer, blue_cell, NULL, &cell_rect);
                     break;
-                case CellStateYellow:
-                    SDL_RenderCopy(renderer, yellow_cell, NULL, &cell_rect);
+                case CellStateLightBlue:
+                    SDL_RenderCopy(renderer, light_blue_cell, NULL, &cell_rect);
                     break;
                 case CellStatePurple:
                     SDL_RenderCopy(renderer, purple_cell, NULL, &cell_rect);
