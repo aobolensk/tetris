@@ -1,8 +1,14 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 
-const int width = 640;
-const int height = 480;
+const int WINDOW_WIDTH = 640;
+const int WINDOW_HEIGHT = 480;
+const int CELL_SIZE = 16;
+const int BORDER_SIZE = 1;
+const int FIELD_OFFSET_X = 32;
+const int FIELD_OFFSET_Y = 16;
+const int FIELD_WIDTH = 20;
+const int FIELD_HEIGHT = 25;
 
 #define trace_assert(expression)                                                            \
     if (!(expression)) {                                                                    \
@@ -12,20 +18,20 @@ const int height = 480;
 
 SDL_Texture *get_cell(SDL_Renderer *renderer, int r, int g, int b) {
     SDL_Surface *cell_surface = NULL;
-    trace_assert(cell_surface = SDL_CreateRGBSurface(0, 32, 32, 32, 0, 0, 0, 0));
+    trace_assert(cell_surface = SDL_CreateRGBSurface(0, CELL_SIZE, CELL_SIZE, 32, 0, 0, 0, 0));
     SDL_FillRect(cell_surface, NULL, SDL_MapRGB(cell_surface->format, 140, 140, 140));
     SDL_Rect border;
     border.x = border.y = 0;
-    border.w = 32;
-    border.h = 2;
+    border.w = CELL_SIZE;
+    border.h = BORDER_SIZE;
     SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 255, 255, 255));
-    border.y = 32 - 2;
+    border.y = CELL_SIZE - BORDER_SIZE;
     SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 255, 255, 255));
     border.x = border.y = 0;
-    border.w = 2;
-    border.h = 32;
+    border.w = BORDER_SIZE;
+    border.h = CELL_SIZE;
     SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 255, 255, 255));
-    border.x = 32 - 2;
+    border.x = CELL_SIZE - BORDER_SIZE;
     SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 255, 255, 255));
     SDL_Texture *cell_texture = NULL;
     trace_assert(cell_texture = SDL_CreateTextureFromSurface(renderer, cell_surface));
@@ -39,31 +45,25 @@ int main(int argc, char **argv) {
     SDL_Window *window = NULL;
     trace_assert(window = SDL_CreateWindow("Tetris",
             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-            width, height, SDL_WINDOW_SHOWN));
+            WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN));
     SDL_Renderer *renderer = NULL;
     trace_assert(renderer = SDL_CreateRenderer(window, -1,
             SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
 
     SDL_Surface *surface = NULL;
-    trace_assert(surface = SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0));
+    trace_assert(surface = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0, 0, 0, 0));
     SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 140, 140, 140));
 
     SDL_Texture *texture = NULL;
     trace_assert(texture = SDL_CreateTextureFromSurface(renderer, surface));
 
-    SDL_Rect rect;
-    rect.x = rect.y = 0;
-    rect.w = width / 3 * 2;
-    rect.h = height;
-
-    SDL_RenderCopy(renderer, texture, NULL, &rect);
     SDL_Texture *empty_cell = get_cell(renderer, 140, 140, 140);
     SDL_Rect cell;
-    cell.w = cell.h = 16;
-    for (int i = 0; i < 20; ++i) {
-        for (int j = 0; j < 25; ++j) {
-            cell.x = i * 16 + 32;
-            cell.y = j * 16 + 16;
+    cell.w = cell.h = CELL_SIZE;
+    for (int i = 0; i < FIELD_WIDTH; ++i) {
+        for (int j = 0; j < FIELD_HEIGHT; ++j) {
+            cell.x = i * CELL_SIZE + FIELD_OFFSET_X;
+            cell.y = j * CELL_SIZE + FIELD_OFFSET_Y;
             SDL_RenderCopy(renderer, empty_cell, NULL, &cell);
         }
     }
