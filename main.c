@@ -55,7 +55,7 @@ typedef struct {
     int x, y;
 } Point;
 
-Point tetromino[6][4] = {
+Point tetromino[12][4] = {
     {
         {.x = 0, .y = 0},
         {.x = 0, .y = 0},
@@ -63,39 +63,77 @@ Point tetromino[6][4] = {
         {.x = 0, .y = 0}
     },
     {
-        {.x = 0, .y = 0},
-        {.x = 1, .y = 0},
-        {.x = 2, .y = 0},
-        {.x = 3, .y = 0}
+        {.x = 0, .y = 0},   // #
+        {.x = 1, .y = 0},   // #
+        {.x = 2, .y = 0},   // #
+        {.x = 3, .y = 0}    // #
+    },
+    {
+        {.x = 0, .y = 0},   // ##
+        {.x = 1, .y = 0},   // ##
+        {.x = 0, .y = 1},   //
+        {.x = 1, .y = 1}    //
+    },
+    {
+        {.x = 0, .y = 0},   // ##
+        {.x = 1, .y = 0},   // #
+        {.x = 2, .y = 0},   // #
+        {.x = 0, .y = 1}    //
+    },
+    {
+        {.x = 0, .y = 0},   // #
+        {.x = 1, .y = 0},   // ##
+        {.x = 1, .y = 1},   //  #
+        {.x = 2, .y = 1}    //
+    },
+    {
+        {.x = 0, .y = 0},   // ###
+        {.x = 0, .y = 1},   //  #
+        {.x = 0, .y = 2},   //
+        {.x = 1, .y = 1}    //
     },
     {
         {.x = 0, .y = 0},
-        {.x = 1, .y = 0},
-        {.x = 0, .y = 1},
-        {.x = 1, .y = 1}
+        {.x = 0, .y = 0},
+        {.x = 0, .y = 0},
+        {.x = 0, .y = 0}
     },
     {
-        {.x = 0, .y = 0},
-        {.x = 1, .y = 0},
-        {.x = 2, .y = 0},
-        {.x = 2, .y = 1}
+        {.x = 0, .y = 0},   // #
+        {.x = 1, .y = 0},   // #
+        {.x = 2, .y = 0},   // #
+        {.x = 3, .y = 0}    // #
     },
     {
-        {.x = 0, .y = 0},
-        {.x = 1, .y = 0},
-        {.x = 1, .y = 1},
-        {.x = 2, .y = 1}
+        {.x = 0, .y = 0},   // ##
+        {.x = 1, .y = 0},   // ##
+        {.x = 0, .y = 1},   //
+        {.x = 1, .y = 1}    //
     },
     {
-        {.x = 0, .y = 0},
-        {.x = 0, .y = 1},
-        {.x = 0, .y = 2},
-        {.x = 1, .y = 1}
-    }
+        {.x = 0, .y = 0},   // ##
+        {.x = 0, .y = 1},   //  #
+        {.x = 1, .y = 1},   //  #
+        {.x = 2, .y = 1}    //
+    },
+    {
+        {.x = 0, .y = 1},   //  #
+        {.x = 1, .y = 0},   // ##
+        {.x = 1, .y = 1},   // #
+        {.x = 2, .y = 0}    //
+    },
+    {
+        {.x = 0, .y = 1},   //  #
+        {.x = 1, .y = 0},   // ###
+        {.x = 1, .y = 1},   //
+        {.x = 1, .y = 2}    //
+    },
 };
 
+int type;
+
 Point spawn_tetromino(int **field) {
-    int type = rand() % 5 + 1;
+    type = rand() % 5 + 1;
     int c = (FIELD_WIDTH - 1) / 2;
     for (int i = 0; i < 4; ++i) {
         field[c + tetromino[type][i].x][0 + tetromino[type][i].y] = type;
@@ -148,6 +186,7 @@ int main(int argc, char **argv) {
     }
 
     Point floating_tetromino = spawn_tetromino(field);
+    int tetromino_state = 0;
 
     SDL_Texture *empty_cell = get_cell(renderer, 140, 140, 140);
     SDL_Texture *red_cell = get_cell(renderer, 255, 0, 0);
@@ -158,7 +197,7 @@ int main(int argc, char **argv) {
     SDL_Rect cell_rect;
     cell_rect.w = cell_rect.h = CELL_SIZE;
 
-    SDL_TimerID timer_id = SDL_AddTimer(100, timer_callback, NULL);
+    SDL_TimerID timer_id = SDL_AddTimer(500, timer_callback, NULL);
     int quit = 0;
     SDL_Event event;
 
@@ -166,43 +205,109 @@ int main(int argc, char **argv) {
         SDL_WaitEvent(&event);
         int *x = &floating_tetromino.x;
         int *y = &floating_tetromino.y;
-        int type = field[*x][*y];
         switch (event.type) {
         case SDL_KEYDOWN: {
             switch (event.key.keysym.sym) {
             case SDLK_LEFT: {
-                for (int i = 0; i < 4; ++i) {
-                    field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = CellStateEmpty;
-                }
-                --floating_tetromino.x;
-                bool move = true;
-                for (int i = 0; i < 4; ++i) {
-                    if (field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] != CellStateEmpty) {
-                        move = false;
-                        break;
+                if (floating_tetromino.x - 1 >= 0) {
+                    for (int i = 0; i < 4; ++i) {
+                        field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = CellStateEmpty;
                     }
-                }
-                if (!move) {
-                    ++floating_tetromino.x;
-                }
-                for (int i = 0; i < 4; ++i) {
-                    field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = type;
+                    --floating_tetromino.x;
+                    bool move = true;
+                    for (int i = 0; i < 4; ++i) {
+                        if (field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] != CellStateEmpty) {
+                            move = false;
+                            break;
+                        }
+                    }
+                    if (!move) {
+                        ++floating_tetromino.x;
+                    }
+                    for (int i = 0; i < 4; ++i) {
+                        field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = type;
+                    }
                 }
             } break;
             case SDLK_RIGHT: {
+                bool move = true;
+                for (int i = 0; i < 4; ++i) {
+                    if (*x + tetromino[type][i].x + 1 >= FIELD_WIDTH) {
+                        move = false;
+                        break;
+                    }
+                }
+                if (move) {
+                    for (int i = 0; i < 4; ++i) {
+                        field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = CellStateEmpty;
+                    }
+                    ++floating_tetromino.x;
+                    for (int i = 0; i < 4; ++i) {
+                        if (field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] != CellStateEmpty) {
+                            move = false;
+                            break;
+                        }
+                    }
+                    if (!move) {
+                        --floating_tetromino.x;
+                    }
+                    for (int i = 0; i < 4; ++i) {
+                        field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = type;
+                    }
+                }
+            } break;
+            case SDLK_UP: {
+                bool move = true;
                 for (int i = 0; i < 4; ++i) {
                     field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = CellStateEmpty;
                 }
-                ++floating_tetromino.x;
-                bool move = true;
+                printf("state: %d, type: %d\n", tetromino_state, type);
+                if (tetromino_state % 2 == 0) {
+                    for (int i = 0; i < 4; ++i) {
+                        int t = tetromino[type][i].x;
+                        tetromino[type][i].x = tetromino[type][i].y;
+                        tetromino[type][i].y = t;
+                    }
+                    ++tetromino_state;
+                } else if (tetromino_state == 1) {
+                    type += 6;
+                    ++tetromino_state;
+                } else {
+                    type -= 6;
+                    tetromino_state = 0;
+                }
                 for (int i = 0; i < 4; ++i) {
+                    if (*x + tetromino[type][i].x < 0 ||
+                        *x + tetromino[type][i].x >= FIELD_WIDTH ||
+                        *y + tetromino[type][i].y < 0 ||
+                        *y + tetromino[type][i].y >= FIELD_HEIGHT) {
+                        move = false;
+                        break;
+                    }
                     if (field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] != CellStateEmpty) {
                         move = false;
                         break;
                     }
                 }
                 if (!move) {
-                    --floating_tetromino.x;
+                    if (tetromino_state % 2 == 1) {
+                        for (int i = 0; i < 4; ++i) {
+                            int t = tetromino[type][i].x;
+                            tetromino[type][i].x = tetromino[type][i].y;
+                            tetromino[type][i].y = t;
+                        }
+                        --tetromino_state;
+                    } else if (tetromino_state == 0) {
+                        type += 6;
+                        tetromino_state = 3;
+                    } else {
+                        type -= 6;
+                        --tetromino_state;
+                    }
+                }
+                printf("state: %d, type: %d - end\n", tetromino_state, type);
+                for (int i = 0; i < 4; ++i) {
+                    printf("%d %d\n", tetromino[type][i].x, tetromino[type][i].y);
                 }
                 for (int i = 0; i < 4; ++i) {
                     field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = type;
@@ -212,6 +317,10 @@ int main(int argc, char **argv) {
                 bool move = true;
                 while (move) {
                     for (int i = 0; i < 4; ++i) {
+                        if (*y + tetromino[type][i].y >= FIELD_HEIGHT) {
+                            move = false;
+                            break;
+                        }
                         field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = CellStateEmpty;
                     }
                     ++floating_tetromino.y;
@@ -261,6 +370,7 @@ int main(int argc, char **argv) {
                 if (!ok) {
                     move = false;
                 }
+                printf("type: %d\n", type);
                 if (move) {
                     for (int i = 0; i < 4; ++i) {
                         field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = CellStateEmpty;
@@ -270,7 +380,9 @@ int main(int argc, char **argv) {
                         field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = type;
                     }
                 } else {
+                    puts("spawn");
                     floating_tetromino = spawn_tetromino(field);
+                    tetromino_state = 0;
                 }
             }
         } break;
@@ -278,11 +390,36 @@ int main(int argc, char **argv) {
             quit = 1;
         } break;
         }
+        bool changed = false;
+        do {
+            for (int j = 0; j < FIELD_HEIGHT; ++j) {
+                bool del_row = true;
+                for (int i = 0; i < FIELD_WIDTH; ++i) {
+                    if (field[i][j] == CellStateEmpty) {
+                        del_row = false;
+                        break;
+                    }
+                }
+                if (del_row) {
+                    for (int k = j; k > 1; --k) {
+                        for (int i = 0; i < FIELD_WIDTH; ++i) {
+                            field[i][k] = field[i][k-1];
+                        }
+                    }
+                    changed = true;
+                } else {
+                    changed = false;
+                }
+                if (changed) {
+                    break;
+                }
+            }
+        } while (changed);
         for (int i = 0; i < FIELD_WIDTH; ++i) {
             for (int j = 0; j < FIELD_HEIGHT; ++j) {
                 cell_rect.x = i * CELL_SIZE + FIELD_OFFSET_X;
                 cell_rect.y = j * CELL_SIZE + FIELD_OFFSET_Y;
-                switch (field[i][j]) {
+                switch (field[i][j] % 6) {
                 case CellStateEmpty:
                     SDL_RenderCopy(renderer, empty_cell, NULL, &cell_rect);
                     break;
