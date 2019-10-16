@@ -36,14 +36,27 @@ matrix:
         - cmake ..
         - cmake --build . -- -j
     - os: osx
-      language: cpp
+      language: c
       osx_image: xcode11
       name: macOS-clang
       addons:
         homebrew:
           packages:
             - sdl2
+      script:
+        - mkdir build
+        - cd build
+        - cmake ..
+        - cmake --build . -- -j
+    - os: windows
+      language: c
+      name: Windows-MSVC
+      env:
+        - MSBUILD_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin"
       install:
+        - curl -O https://www.libsdl.org/release/SDL2-devel-2.0.10-VC.zip
+        - 7z x SDL2-devel-2.0.10-VC.zip -o"C:/SDL2"
+        - set PATH=%MSBUILD_PATH%;%PATH%
       script:
         - mkdir build
         - cd build
