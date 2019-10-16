@@ -32,23 +32,14 @@ enum CellState {
     CellStatePurple
 };
 
-SDL_Texture *get_cell(SDL_Renderer *renderer, int r, int g, int b) {
+SDL_Texture *get_cell(SDL_Renderer *renderer, SDL_Color cell_color, SDL_Color border_color) {
     SDL_Surface *cell_surface = NULL;
     trace_assert(cell_surface = SDL_CreateRGBSurface(0, CELL_SIZE, CELL_SIZE, 32, 0, 0, 0, 0));
-    SDL_FillRect(cell_surface, NULL, SDL_MapRGB(cell_surface->format, r, g, b));
+    SDL_FillRect(cell_surface, NULL, SDL_MapRGB(cell_surface->format, border_color.r, border_color.g, border_color.b));
     SDL_Rect border;
-    border.x = border.y = 0;
-    border.w = CELL_SIZE;
-    border.h = BORDER_SIZE;
-    SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 180, 180, 180));
-    border.y = CELL_SIZE - BORDER_SIZE;
-    SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 180, 180, 180));
-    border.x = border.y = 0;
-    border.w = BORDER_SIZE;
-    border.h = CELL_SIZE;
-    SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 180, 180, 180));
-    border.x = CELL_SIZE - BORDER_SIZE;
-    SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, 180, 180, 180));
+    border.x = border.y = BORDER_SIZE;
+    border.w = border.h = CELL_SIZE - 2 * BORDER_SIZE;
+    SDL_FillRect(cell_surface, &border, SDL_MapRGB(cell_surface->format, cell_color.r, cell_color.g, cell_color.b));
     SDL_Texture *cell_texture = NULL;
     trace_assert(cell_texture = SDL_CreateTextureFromSurface(renderer, cell_surface));
     SDL_FreeSurface(cell_surface);
@@ -165,6 +156,9 @@ Uint32 timer_callback(Uint32 interval, void *param) {
 }
 
 int main(int argc, char **argv) {
+    trace_assert(FIELD_WIDTH >= 8);
+    trace_assert(FIELD_HEIGHT >= 8);
+
     tetromino[15][0].x = 0;
     tetromino[15][0].y = 0;
     tetromino[15][1].x = 1;
@@ -211,12 +205,13 @@ int main(int argc, char **argv) {
     bool just_spawned = true;
     int tetromino_state = 0;
 
-    SDL_Texture *empty_cell = get_cell(renderer, 140, 140, 140);
-    SDL_Texture *red_cell = get_cell(renderer, 230, 0, 0);
-    SDL_Texture *green_cell = get_cell(renderer, 50, 230, 50);
-    SDL_Texture *blue_cell = get_cell(renderer, 0, 0, 230);
-    SDL_Texture *light_blue_cell = get_cell(renderer, 0, 230, 230);
-    SDL_Texture *purple_cell = get_cell(renderer, 210, 30, 210);
+    SDL_Color border_color = {.r = 180, .g = 180, .b = 180, .a = 255};
+    SDL_Texture *empty_cell = get_cell(renderer, (SDL_Color){.r = 140, .g = 140, .b = 140, .a = 255}, border_color);
+    SDL_Texture *red_cell = get_cell(renderer, (SDL_Color){.r = 230, .g = 0, .b = 0, .a = 255}, border_color);
+    SDL_Texture *green_cell = get_cell(renderer, (SDL_Color){.r = 50, .g = 230, .b = 50, .a = 255}, border_color);
+    SDL_Texture *blue_cell = get_cell(renderer, (SDL_Color){.r = 0, .g = 0, .b = 230, .a = 255}, border_color);
+    SDL_Texture *light_blue_cell = get_cell(renderer, (SDL_Color){.r = 0, .g = 230, .b = 230, .a = 255}, border_color);
+    SDL_Texture *purple_cell = get_cell(renderer, (SDL_Color){.r = 210, .g = 30, .b = 210, .a = 255}, border_color);
     SDL_Rect cell_rect;
     cell_rect.w = cell_rect.h = CELL_SIZE;
 
