@@ -3,7 +3,7 @@ matrix:
     - os: linux
       language: c
       dist: bionic
-      name: Linux-g++
+      name: Linux-gcc
       compiler: gcc
       addons:
         apt:
@@ -30,6 +30,20 @@ matrix:
             - sourceline: 'ppa:ubuntu-toolchain-r/test'
           packages:
             - libsdl2-dev
+      script:
+        - mkdir build
+        - cd build
+        - cmake ..
+        - cmake --build . -- -j
+    - os: osx
+      language: cpp
+      osx_image: xcode11
+      name: macOS-clang
+      addons:
+        homebrew:
+          packages:
+            - sdl2
+      install:
       script:
         - mkdir build
         - cd build
