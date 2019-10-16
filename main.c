@@ -237,6 +237,7 @@ game_start:
         switch (event.type) {
         case SDL_KEYDOWN: {
             switch (event.key.keysym.sym) {
+            case SDLK_a:
             case SDLK_LEFT: {
                 if (!paused) {
                     if (floating_tetromino.x - 1 >= 0) {
@@ -260,6 +261,7 @@ game_start:
                     }
                 }
             } break;
+            case SDLK_d:
             case SDLK_RIGHT: {
                 if (!paused) {
                     bool move = true;
@@ -289,6 +291,7 @@ game_start:
                     }
                 }
             } break;
+            case SDLK_w:
             case SDLK_UP: {
                 if (!paused) {
                     bool move = true;
@@ -349,6 +352,7 @@ game_start:
                     }
                 }
             } break;
+            case SDLK_s:
             case SDLK_DOWN: {
                 if (!paused) {
                     bool move = true;
