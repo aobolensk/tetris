@@ -349,10 +349,10 @@ game_start:
                 bool move = true;
                 while (move) {
                     for (int i = 0; i < 4; ++i) {
-                        if (*y + tetromino[type][i].y >= FIELD_HEIGHT) {
+                        if (*y + tetromino[type][i].y >= FIELD_HEIGHT - 1) {
                             move = false;
                             break;
-                           }
+                        }
                         field[*x + tetromino[type][i].x][*y + tetromino[type][i].y] = CellStateEmpty;
                     }
                     ++floating_tetromino.y;
