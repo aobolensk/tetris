@@ -517,9 +517,15 @@ game_start:
     }
     free(field);
 
+    SDL_RemoveTimer(timer_id);
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
     SDL_DestroyTexture(empty_cell);
+    SDL_DestroyTexture(red_cell);
+    SDL_DestroyTexture(green_cell);
+    SDL_DestroyTexture(blue_cell);
+    SDL_DestroyTexture(light_blue_cell);
+    SDL_DestroyTexture(purple_cell);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
