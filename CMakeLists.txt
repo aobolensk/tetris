@@ -9,5 +9,5 @@ if (LINUX AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -rdynamic")
 endif (LINUX AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
-add_executable(tetris main.c)
+add_executable(tetris src/main.c)
 target_link_libraries(tetris ${SDL2_LIBRARIES})
