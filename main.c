@@ -115,6 +115,20 @@ Point tetromino[24][4] = {
 int type;
 
 Point spawn_tetromino(int **field) {
+    int r = rand() % 10 + 1;
+    if (r <= 1) {
+        type = 1;
+    } else if (r <= 3) {
+        type = 2;
+    } else if (r <= 6) {
+        type = 3;
+    } else if (r <= 8) {
+        type = 4;
+    } else if (r <= 10) {
+        type = 5;
+    } else {
+        trace_assert(0);
+    }
     type = rand() % 5 + 1;
     int c = (FIELD_WIDTH - 1) / 2;
     for (int i = 0; i < 4; ++i) {
