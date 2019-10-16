@@ -157,7 +157,7 @@ Uint32 timer_callback(Uint32 interval, void *param) {
     event.user = userevent;
 
     SDL_PushEvent(&event);
-    return(interval);
+    return 500 - (*(int*)param) / 10;
 }
 
 int main(int argc, char **argv) {
@@ -178,8 +178,6 @@ int main(int argc, char **argv) {
     tetromino[21][2].y = 0;
     tetromino[21][3].x = 2;
     tetromino[21][3].y = 1;
-
-    int score = 0;
 
     srand((unsigned)time(0));
     trace_assert(SDL_Init(SDL_INIT_VIDEO) == 0);
@@ -218,11 +216,18 @@ int main(int argc, char **argv) {
     SDL_Rect cell_rect;
     cell_rect.w = cell_rect.h = CELL_SIZE;
 
-    SDL_TimerID timer_id = SDL_AddTimer(500, timer_callback, NULL);
+    int score = 0;
+    int bonus = 0;
+    int lines = 0;
+
+    SDL_TimerID timer_id = SDL_AddTimer(500, timer_callback, &lines);
     int quit = 0;
     SDL_Event event;
 
 game_start:
+    score = 0;
+    bonus = 0;
+    lines = 0;
     while (!quit) {
         SDL_WaitEvent(&event);
         int *x = &floating_tetromino.x;
@@ -453,22 +458,27 @@ game_start:
         case 0:
             break;
         case 1:
+            bonus = 0;
             score += 150;
             printf("Score: %d\n", score);
             break;
         case 2:
+            bonus = 0;
             score += 350;
             printf("Score: %d\n", score);
             break;
         case 3:
+            bonus = 0;
             score += 750;
             printf("Score: %d\n", score);
             break;
         default:
-            score += 1550;
+            score += 1550 + bonus;
+            bonus += 50;
             printf("Score: %d\n", score);
             break;
         }
+        lines += dels_in_a_row;
         for (int i = 0; i < FIELD_WIDTH; ++i) {
             for (int j = 0; j < FIELD_HEIGHT; ++j) {
                 cell_rect.x = i * CELL_SIZE + FIELD_OFFSET_X;
