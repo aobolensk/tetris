@@ -9,5 +9,6 @@ const int FIELD_OFFSET_X = 32;
 const int FIELD_OFFSET_Y = 16;
 const int FIELD_WIDTH = 20;
 const int FIELD_HEIGHT = 20;
+const int MAX_STACK_TRACE_SIZE = 64;
 
 #endif /* CONFIG_H */
