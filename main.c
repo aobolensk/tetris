@@ -384,6 +384,7 @@ game_start:
                                     field[i][j] = 0;
                                 }
                             }
+                            floating_tetromino = spawn_tetromino(field);
                             goto game_start;
                         }
                         ok = false;
