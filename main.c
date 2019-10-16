@@ -7,21 +7,8 @@
 #else
 #include <SDL.h>
 #endif  // __APPLE__
-
-const int WINDOW_WIDTH = 640;
-const int WINDOW_HEIGHT = 480;
-const int CELL_SIZE = 16;
-const int BORDER_SIZE = 1;
-const int FIELD_OFFSET_X = 32;
-const int FIELD_OFFSET_Y = 16;
-const int FIELD_WIDTH = 20;
-const int FIELD_HEIGHT = 20;
-
-#define trace_assert(expression)                                                            \
-    if (!(expression)) {                                                                    \
-        fprintf(stderr, "Assertion failed: %s at %s:%d", #expression, __FILE__, __LINE__);  \
-        exit(1);                                                                            \
-    }                                                                                       \
+#include "trace_assert.h"
+#include "config.h"
 
 enum CellState {
     CellStateEmpty,
@@ -31,6 +18,10 @@ enum CellState {
     CellStateLightBlue,
     CellStatePurple
 };
+
+typedef struct {
+    int x, y;
+} Point;
 
 SDL_Texture *get_cell(SDL_Renderer *renderer, SDL_Color cell_color, SDL_Color border_color) {
     SDL_Surface *cell_surface = NULL;
@@ -45,10 +36,6 @@ SDL_Texture *get_cell(SDL_Renderer *renderer, SDL_Color cell_color, SDL_Color bo
     SDL_FreeSurface(cell_surface);
     return cell_texture;
 }
-
-typedef struct {
-    int x, y;
-} Point;
 
 Point tetromino[24][4] = {
     {
