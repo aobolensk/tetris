@@ -2,7 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#ifndef __APPLE__
 #include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif  // __APPLE__
 
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
