@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -157,6 +158,9 @@ Uint32 timer_callback(Uint32 interval, void *param) {
 }
 
 int main(int argc, char **argv) {
+    #if defined(__GNUC__) && defined(__linux__)
+    signal(SIGSEGV, trace_signal);
+    #endif  // defined(__GNUC__) && defined(__linux__)
     trace_assert(FIELD_WIDTH >= 8);
     trace_assert(FIELD_HEIGHT >= 8);
 
