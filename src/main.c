@@ -3,11 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#ifdef __linux__
-#include <SDL2/SDL.h>
-#else
 #include <SDL.h>
-#endif  // __linux__
 #include "trace_assert.h"
 #include "config.h"
 
