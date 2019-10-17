@@ -8,7 +8,7 @@ environment:
 before_build:
   - appveyor DownloadFile https://libsdl.org/release/SDL2-devel-2.0.10-VC.zip
   - 7z x SDL2-devel-2.0.10-VC.zip
-  - set PATH=%APPVEYOR_BUILD_FOLDER%/SDL2-2.0.10;%PATH%
+  - set PATH=%APPVEYOR_BUILD_FOLDER%/SDL2-2.0.10/include;%PATH%
   - if %PLATFORM% == x86 set PATH=%APPVEYOR_BUILD_FOLDER%/SDL2-2.0.10/lib/x86;%PATH%
   - if %PLATFORM% == x64 set PATH=%APPVEYOR_BUILD_FOLDER%/SDL2-2.0.10/lib/x64;%PATH%
   - echo set(SDL2_INCLUDE_DIRS "${CMAKE_CURRENT_LIST_DIR}/") > SDL2-2.0.10\sdl2-config.cmake
