@@ -36,14 +36,13 @@ matrix:
         - cmake ..
         - cmake --build . -- -j
     - os: osx
-      language: cpp
+      language: c
       osx_image: xcode11
       name: macOS-clang
       addons:
         homebrew:
           packages:
             - sdl2
-      install:
       script:
         - mkdir build
         - cd build
