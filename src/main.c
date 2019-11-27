@@ -380,6 +380,15 @@ game_start:
                     }
                 }
             } break;
+            case SDLK_r: {
+                for (int i = 0; i < FIELD_WIDTH; ++i) {
+                    for (int j = 0; j < FIELD_HEIGHT; ++j) {
+                        field[i][j] = 0;
+                    }
+                }
+                floating_tetromino = spawn_tetromino(field);
+                goto game_start;
+            } break;
             case SDLK_ESCAPE: {
                 if (!paused) {
                     SDL_RemoveTimer(timer_id);
